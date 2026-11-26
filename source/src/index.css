@@ -1,0 +1,556 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   SK hynix — Unified Design System (PHASE 02)
+   所有颜色 / 字体 / 间距以此为唯一事实源，禁止组件内联旧值
+   ============================================================ */
+:root {
+  --void: #050507;
+  --paper: #f4f1ea;
+  --muted: #96969b;
+  --ice: #9ccbeb;
+  --silver: #b8bec7;
+  --line: rgba(255, 255, 255, 0.14);
+
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-label: 'Jost', system-ui, sans-serif;
+  --font-sans: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+
+  /* 响应式节奏：全部 clamp() */
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --section-y: clamp(6rem, 12vw, 12rem);
+  --title-xl: clamp(3rem, 9vw, 8.5rem);
+  --title-lg: clamp(2.5rem, 6vw, 5.5rem);
+  --title-md: clamp(1.75rem, 3.6vw, 3.25rem);
+  --body: clamp(0.875rem, 1.1vw, 1.0625rem);
+  --label: clamp(0.625rem, 0.8vw, 0.75rem);
+  --rule: clamp(2rem, 5vw, 5rem);
+
+  /* 动效节奏：统一缓动 / 微交互时长 / 微位移 */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-hover: 0.35s;
+  --micro-shift: 4px;
+}
+
+html {
+  background: var(--void);
+  scroll-behavior: smooth;
+  scroll-padding-top: clamp(4rem, 8vw, 5.5rem);
+}
+/* clip 不创建滚动容器，保证 sticky 正常 */
+html,
+body {
+  overflow-x: clip;
+}
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-size: var(--body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+::selection {
+  background: rgba(156, 203, 235, 0.28);
+  color: var(--paper);
+}
+:where(a, button, [tabindex]):focus-visible {
+  outline: 1px solid var(--ice);
+  outline-offset: 4px;
+}
+
+/* 章节之间的黑色渐变衔接：只压暗顶部，不参与交互 */
+main > section:not(#hero)::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: clamp(4rem, 9vw, 8rem);
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(to bottom, var(--void), transparent);
+}
+
+/* ---------- 排版原语 ---------- */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-label {
+  font-family: var(--font-label);
+}
+.eyebrow {
+  font-family: var(--font-label);
+  font-size: var(--label);
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ice);
+}
+.cn-title {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+}
+.hairline {
+  height: 1px;
+  background: var(--line);
+}
+
+/* ---------- HERO 视频融合 ---------- */
+.video-mask {
+  -webkit-mask-image: linear-gradient(to bottom, #000 74%, transparent 99%);
+  mask-image: linear-gradient(to bottom, #000 74%, transparent 99%);
+}
+
+/* ---------- PHASE 03：Sticky 视口 / 电影质感 ---------- */
+.hero-scroll {
+  position: relative;
+  height: 220vh;
+  /* 移动端地址栏伸缩时保持 sticky 行程稳定 */
+  height: 220svh;
+}
+.hero-stage {
+  height: 100vh;
+  /* 移动端地址栏伸缩时保持 sticky 视口稳定；不支持 svh 的浏览器回落到 100vh */
+  height: 100svh;
+}
+.film-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.035;
+  mix-blend-mode: soft-light;
+}
+@media (prefers-reduced-motion: reduce) {
+  .film-grain { opacity: 0.02; }
+}
+
+/* ---------- 品牌收尾视口 ---------- */
+.ending-section {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* ---------- 滚动提示 ---------- */
+@keyframes scroll-drift {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+.scroll-drift { animation: scroll-drift 2.8s var(--ease-out) infinite; }
+
+/* ---------- 光点呼吸：慢速、低幅度，避免高频闪烁 ---------- */
+@keyframes breathe {
+  0%, 100% { opacity: 0.45; transform: scale(0.94); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+.breathe { animation: breathe 7s var(--ease-inout) infinite; }
+
+/* ---------- 数据流 ---------- */
+@keyframes line-flow {
+  to { background-position-x: 220%; }
+}
+.line-flow {
+  background-image: linear-gradient(90deg,
+    transparent 0%, rgba(156, 203, 235, 0.06) 35%,
+    rgba(156, 203, 235, 0.55) 50%, rgba(156, 203, 235, 0.06) 65%, transparent 100%);
+  background-size: 220% 100%;
+  animation: line-flow 9s linear infinite;
+}
+
+/* ---------- 叙事链信号扫掠 ---------- */
+@keyframes signal-sweep {
+  0% { background-position: -40% 0; }
+  65%, 100% { background-position: 140% 0; }
+}
+.signal-sweep {
+  background-image: linear-gradient(90deg,
+    transparent 0%, rgba(156, 203, 235, 0.65) 50%, transparent 100%);
+  background-size: 34% 100%;
+  background-repeat: no-repeat;
+  animation: signal-sweep 9s var(--ease-inout) infinite;
+}
+
+/* ---------- 极弱环境微粒：仅用于空间纵深，不参与信息表达 ---------- */
+@keyframes dust-drift {
+  0% { transform: translate3d(0, 10px, 0); opacity: 0; }
+  22%, 68% { opacity: 0.32; }
+  100% { transform: translate3d(6px, -18px, 0); opacity: 0; }
+}
+.ambient-dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient-dust i {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  background: var(--ice);
+  opacity: 0;
+  animation: dust-drift var(--dust-duration, 20s) linear infinite;
+  animation-delay: var(--dust-delay, 0s);
+}
+
+/* ---------- 精密网格 ---------- */
+.tech-grid {
+  background-image:
+    linear-gradient(rgba(156, 203, 235, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(156, 203, 235, 0.05) 1px, transparent 1px);
+  background-size: clamp(48px, 6vw, 84px) clamp(48px, 6vw, 84px);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 45%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 45%, #000 25%, transparent 78%);
+}
+
+/* ---------- 结构面板切换淡入 ---------- */
+@keyframes panel-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- 描边大字（排版装饰，非真实结构） ---------- */
+.outline-word {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(244, 241, 234, 0.065);
+}
+
+/* ---------- 3D 容器占位框 ---------- */
+.stage-frame {  border: 1px solid var(--line);
+  /* 金属边缘高光：只落在顶边与内缘，避免整框发亮 */
+  border-top-color: rgba(184, 190, 199, 0.28);
+  box-shadow: inset 0 1px 0 rgba(244, 241, 234, 0.05);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(156, 203, 235, 0.06), transparent 62%),
+    rgba(255, 255, 255, 0.012);
+}
+.stage-corner {
+  position: absolute;
+  width: clamp(12px, 1.6vw, 22px);
+  height: clamp(12px, 1.6vw, 22px);
+  border-color: var(--ice);
+  opacity: 0.5;
+}
+
+/* ---------- HBM 3D 舞台底光：给模型一点「落地」的层次 ---------- */
+.hbm-stage-glow {
+  background:
+    radial-gradient(ellipse 40% 34% at 50% 40%, rgba(156, 203, 235, 0.13), transparent 74%),
+    radial-gradient(ellipse 66% 18% at 50% 82%, rgba(156, 203, 235, 0.1), transparent 72%),
+    linear-gradient(180deg, rgba(156, 203, 235, 0.03), transparent 42%, rgba(5, 5, 7, 0.28));
+}
+
+/* 舞台右侧的精密刻度，纯装饰，不参与交互 */
+.hbm-ruler {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(156, 203, 235, 0.3) 0,
+    rgba(156, 203, 235, 0.3) 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+}
+
+/* 视角切换按钮：方角、细描边，与全站按钮同一套语言 */
+.hbm-mode {
+  border-radius: 2px;
+  backdrop-filter: blur(4px);
+}
+.hbm-mode:focus-visible {
+  outline: 1px solid var(--ice);
+  outline-offset: 2px;
+}
+.hbm-mode[aria-pressed='true'] {
+  box-shadow: inset 0 -1px 0 rgba(156, 203, 235, 0.85), inset 0 1px 0 rgba(156, 203, 235, 0.12);
+}
+
+/* 工牌舞台：冷色背光 + 一条若隐若现的地面线 */
+.badge-stage-glow {
+  background:
+    radial-gradient(ellipse 34% 44% at 50% 50%, rgba(156, 203, 235, 0.11), transparent 72%),
+    radial-gradient(ellipse 58% 16% at 50% 84%, rgba(156, 203, 235, 0.07), transparent 74%),
+    linear-gradient(180deg, rgba(156, 203, 235, 0.025), transparent 55%);
+}
+
+/* ---------- 导航链接 ---------- */
+.nav-link {
+  position: relative;
+  font-family: var(--font-label);
+  font-size: var(--label);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color var(--dur-hover) var(--ease-out);
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-hover) var(--ease-out);
+}
+.nav-link:hover,
+.nav-link[data-active='true'] { color: var(--ice); }
+.nav-link:hover::after,
+.nav-link[data-active='true']::after { transform: scaleX(1); }
+
+/* 移动端菜单：同一套激活色，但不放大字号 */
+.mobile-nav-link {
+  transition: color var(--dur-hover) var(--ease-out),
+              border-color var(--dur-hover) var(--ease-out);
+}
+.mobile-nav-link[data-active='true'] { border-bottom-color: rgba(156, 203, 235, 0.55); }
+.mobile-nav-link[data-active='true'] > span:first-child { color: var(--ice); }
+
+/* ---------- 按钮反馈 ---------- */
+.btn-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  border: 1px solid var(--line);
+  font-family: var(--font-label);
+  font-size: var(--label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--paper);
+  transition: border-color var(--dur-hover) var(--ease-out),
+              background var(--dur-hover) var(--ease-out),
+              transform var(--dur-hover) var(--ease-out);
+}
+.btn-line:hover {
+  border-color: var(--ice);
+  background: rgba(156, 203, 235, 0.07);
+  transform: translateY(calc(var(--micro-shift) * -0.5));
+}
+.btn-line:active {
+  transform: translateY(0);
+  background: rgba(156, 203, 235, 0.1);
+}
+
+/* 技术标签：轻微高亮，不做位移或闪烁 */
+.tech-tag {
+  transition: color var(--dur-hover) var(--ease-out),
+              border-color var(--dur-hover) var(--ease-out);
+}
+.tech-tag:hover,
+.group:hover .tech-tag {
+  color: var(--ice);
+  border-color: rgba(156, 203, 235, 0.45);
+}
+
+/* ---------- 移动端：减少环境动画，保留层级与交互反馈 ---------- */
+@media (max-width: 768px) {
+  .ambient-dust { display: none; }
+  .line-flow,
+  .signal-sweep { animation: none; opacity: 0.35; }
+  .breathe { animation: none; opacity: 0.7; }
+  .film-grain { opacity: 0.025; }
+  .cursor-layer { display: none; }
+  .scan-beam, .data-particle { display: none; }
+  .img-parallax > img { transition: none; }
+}
+
+/* ============================================================
+   PART 09 — 全站微交互：光标 / 加载 / 边缘光 / 图片视差 / 扫描
+   ============================================================ */
+
+/* 自定义光标：默认隐藏；启用后隐藏系统光标。整层 pointer-events:none 不挡点击 */
+.cursor-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cursor-dot,
+.cursor-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+  border-radius: 50%;
+}
+.cursor-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--ice);
+  opacity: 0.9;
+  transition: width 0.18s var(--ease-out), height 0.18s var(--ease-out), opacity 0.18s var(--ease-out);
+}
+.cursor-ring {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(156, 203, 235, 0.42);
+  transition: width 0.28s var(--ease-out), height 0.28s var(--ease-out),
+              border-color 0.28s var(--ease-out), opacity 0.28s var(--ease-out);
+}
+html[data-custom-cursor='on'],
+html[data-custom-cursor='on'] a,
+html[data-custom-cursor='on'] button,
+html[data-custom-cursor='on'] [data-cursor='focus'] { cursor: none; }
+html[data-cursor-hover='on'] .cursor-dot { width: 2px; height: 2px; opacity: 0.5; }
+html[data-cursor-hover='on'] .cursor-ring {
+  width: 52px;
+  height: 52px;
+  border-color: rgba(156, 203, 235, 0.85);
+  background: rgba(156, 203, 235, 0.05);
+}
+html[data-cursor-state='down'] .cursor-ring { width: 22px; height: 22px; }
+@media (hover: none), (pointer: coarse) {
+  .cursor-layer { display: none; }
+}
+
+/* HBM SCAN 激活指示 */
+.scan-active { animation: breathe 1.6s var(--ease-inout) infinite; }
+
+/* PART 08 工牌入场：从上方自然落下，只作用于显示容器，不影响 Lanyard 物理 */
+@keyframes badge-enter {
+  0% { opacity: 0; transform: translateY(-38px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.badge-enter { animation: badge-enter 1.4s var(--ease-cinematic) both; }
+
+/* PART 09 技术标签依次点亮 / 卡片边缘反馈 */
+.focus-dot { transition: background-color 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out); }
+.group:hover .focus-dot { box-shadow: 0 0 10px 1px rgba(156, 203, 235, 0.5); }
+
+/* 页面加载：Logo 模糊到清晰 + 横线收束 + 整层退场 */
+.page-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: var(--void);
+  animation: page-intro-in 0.5s var(--ease-out) both;
+}
+.page-intro--out {
+  animation: page-intro-out 0.8s var(--ease-inout) both;
+}
+.page-intro__center { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+.page-intro__logo {
+  height: 2rem;
+  width: auto;
+  animation: logo-resolve 1.3s var(--ease-cinematic) both;
+}
+.page-intro__line {
+  position: relative;
+  width: clamp(8rem, 22vw, 16rem);
+  height: 1px;
+  background: rgba(156, 203, 235, 0.12);
+  overflow: hidden;
+}
+.page-intro__line span {
+  position: absolute;
+  inset: 0;
+  background: var(--ice);
+  transform: scaleX(0);
+  animation: intro-line 1.15s var(--ease-inout) both;
+}
+@keyframes page-intro-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes page-intro-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes logo-resolve {
+  0% { filter: blur(14px); opacity: 0; transform: scale(1.08); }
+  100% { filter: blur(0); opacity: 1; transform: scale(1); }
+}
+@keyframes intro-line {
+  0% { transform: scaleX(0); opacity: 0.4; }
+  70% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+/* 卡片 / 图片：边缘光影跟随指针 */
+.edge-light { position: relative; overflow: hidden; }
+.edge-light::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(156, 203, 235, 0.11), transparent 62%);
+  transition: opacity 0.3s var(--ease-out);
+}
+.edge-light:hover::after { opacity: 1; }
+
+/* 图片悬停视差：内部图放大，容器遮罩 */
+.img-parallax { overflow: hidden; }
+.img-parallax > img {
+  transition: transform 0.7s var(--ease-image), filter 0.7s var(--ease-image);
+  will-change: transform;
+}
+.img-parallax:hover > img { transform: scale(1.045); filter: saturate(1.06); }
+
+/* 标题分行遮罩：内部 span 从下方推入 */
+.line-mask { display: block; overflow: hidden; }
+.line-mask > span { display: block; will-change: transform; }
+
+/* 冰蓝扫描线（HBM SCAN 模式，纯视觉示意） */
+.scan-beam {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(156, 203, 235, 0.9), transparent);
+  box-shadow: 0 0 12px 1px rgba(156, 203, 235, 0.35);
+  animation: scan-sweep 2.4s var(--ease-line) infinite;
+}
+@keyframes scan-sweep {
+  0% { top: 14%; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { top: 86%; opacity: 0; }
+}
+
+/* 数据粒子沿线路移动（AI 章节，纯视觉示意） */
+.data-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ice);
+  box-shadow: 0 0 8px 1px rgba(156, 203, 235, 0.6);
+  animation: particle-run 6s linear infinite;
+}
+@keyframes particle-run {
+  0% { left: -2%; opacity: 0; }
+  10%, 85% { opacity: 0.9; }
+  100% { left: 102%; opacity: 0; }
+}
+
+/* 缓动变量补充到 CSS 侧 */
+:root {
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-image: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-line: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ---------- 降低动态偏好 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .ambient-dust { display: none; }
+  .cursor-layer, .page-intro, .scan-beam, .data-particle { display: none !important; }
+}
